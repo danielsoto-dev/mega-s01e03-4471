@@ -1,0 +1,60 @@
+---
+layout: runbook
+title: '#4471 · three problems, not one'
+owner: Daniel Soto Jaimes
+status: open
+reviewed: 2026-11-01
+signature: Daniel Soto Jaimes
+---
+
+<script>
+  import CauseTable from '#lib/kb/CauseTable.svelte';
+  import Callout from '#lib/kb/Callout.svelte';
+  import RenderStamp from '#lib/kb/RenderStamp.svelte';
+</script>
+
+[#4471](/kb/incidents/4471) is marked known: one bug, one fix queued. Read by tenant, channel and
+body instead of by subject line, its reports describe three problems. The queued parser fix
+closes only the first.
+
+<Callout kind="warn">
+Not one issue. Each problem below has its own ticket.
+</Callout>
+
+## What is merged into #4471
+
+<CauseTable ticket={4471} />
+
+The table counts each report where the desk filed it. The one-day moves in its footnote sit
+under `parser`, but none of them is a month flip.
+
+## The three problems
+
+1. **Parser reads every date month first**:
+   [ticket 1](https://github.com/danielsoto-dev/mega-s01e03-4471/issues/1).
+   Every tenant on file writes the day first, so a date typed in the app or by email comes out
+   with day and month swapped. This is the bug #4471 describes, without the one-day moves.
+2. **booking-v3 prints `MM/DD/YYYY` under its date field**:
+   [ticket 2](https://github.com/danielsoto-dev/mega-s01e03-4471/issues/2).
+   People at day-first tenants on booking-v3 type what the hint tells them, month first, and the
+   form reads it the tenant's way. The parser fix does not touch it: the hint must change.
+3. **Dates move by exactly one day**:
+   [ticket 3](https://github.com/danielsoto-dev/mega-s01e03-4471/issues/3).
+   No swap: the day before or after, and in one case different days for people in different
+   countries for the same meeting. That points at time zones, not at date order.
+
+## How to tell them apart
+
+- Cause comes from the tenant (locale and booking form, `locales.ts`) and the channel, as
+  `causes.ts` computes it. The intake tag is a guess from the reporter's browser; it disagrees
+  with the cause on dozens of these reports.
+- Read the body. A swap names two dates whose day and month trade places; a one-day move does not.
+- Subjects say nothing about cause. Most subjects in #4471 occur under two or three problems,
+  so matching on subject ([decision 0001](/kb/decisions/0001-dedupe-by-subject)) merges them.
+
+## Lessons
+
+- Before marking a big ticket known, group it by cause, not by subject.
+- A footnote under a cause is a problem without a ticket until someone files one.
+
+<RenderStamp {signature} />
